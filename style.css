@@ -1,0 +1,13 @@
+body {
+    font-family: arial;
+}
+
+input[type="text"] {
+    font-size: 16px;
+    padding: 0.25em 0.5em;
+}
+
+textarea {
+    width: 600px;
+    height: 200px;
+}
