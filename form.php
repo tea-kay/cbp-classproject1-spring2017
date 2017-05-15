@@ -1,41 +1,22 @@
 <?php
 
-//activate error reporting (for debugging)
-ini_set('display_errors', 'On');
-error_reporting(E_ALL);
+require 'bootstrap.php';
 
-define('DATA_DIR', 'data');
-define('NOTE_CLASS', 'note');
-define('PRIMARY_KEY', 'id');
-define('INDEX_DATA', ['title']);
-
-require('database.php');
-
-
-/* 
-available functions:
--------------------
-
-// database_please_get_index()
-// database_please_get_all_notes()
-// database_please_get_note($note_id)
-// database_please_save_note($note_object)
-// database_please_delete_note($pk)
-*/
-
-class note 
-{
-    public $id = null;
-    public $title = null;
-    public $text = null;
-    public $created_at = null;
-    public $updated_at = null;
-
-}
-$message =[]; //Messages to be displayed to the user
+$messages =[]; //Messages to be displayed to the user
 
 // RETREIVE DATA FROM DB OR INITIALIZE EMPTY DATA
-$note = new note(); 
+
+// if there was id in GET parameter
+
+// if(isset ($_GET['id']) && $_GET['id']) {
+if(!empty($_GET['id'])) {
+    // retrieve existing note
+    $note = database_please_get_note($_GET['id']);
+    var_dump($note);
+} else {
+    // create a new note
+    $note = new note();
+}
 
 
 if($_POST) 
@@ -45,14 +26,14 @@ if($_POST)
     //getting everything that starts with note[];
     $note_array = $_POST['note'];
 
-    // UPDAATE THE RETRIEVED DATA WITH SUBMITTED DATA
+    // UPDATE THE RETRIEVED DATA WITH SUBMITTED DATA
     $note->title = $note_array['title'];
     $note->text = $note_array['text'];
 
     // IS THE UPDATE VALID?
     $valid = true;
     if(strlen($note->title) == 0) {
-        $message[] = 'The title must not be empty';
+        $messages[] = 'The title must not be empty';
         $valid = false; //switch the valid status to false
     }
     if($valid) {
@@ -87,15 +68,35 @@ if($_POST)
 <body>
     <h1>The Form</h1>
 
+    <?php if($messages) : // if the array of the message is not empty?>
+        <div class="messages"> 
+            <?php foreach($messages as $message) : // loop through messages ?>
+                <div class="message">
+                    <?= $message; ?>
+                </div>
+            <?php endforeach;?>
+        </div>
+    <?php endif;?>
+
+
+
     <form action="" method="post">
 
         <labe for="note_title">Title</label>
+        <?php echo text_input('note[title]', $note->title, ['id' => 'note_title'])?>
         <br>
-        <input type="text" name="note[title]" value="">
+        <select name="category" form="">
+            <option value="Javascript">Javascript</option>
+            <option value="CSS">CSS</option>
+            <option value="Git">Git</option>
+            <option value="PHP">PHP</option>
+        </select>
+        <br>
+        <input type="text" name="note[title]" value="<?php echo htmlspecialchars($note->title);?>" id="note_title">
         <br>
         <labe for="note_title">Text</label>
         <br>
-        <textarea name="note[text]"></textarea>
+        <textarea name="note[text]" id="note_text"><?php echo htmlspecialchars($note->text);?></textarea>
         <br>
         <input type="submit" value="Save">
 </body>
